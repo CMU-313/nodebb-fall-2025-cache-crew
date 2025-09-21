@@ -48,3 +48,4 @@ Config.setMultiple = async function (socket, data) {
 Config.remove = async function (socket, key) {
 	await meta.configs.remove(key);
 };
+
