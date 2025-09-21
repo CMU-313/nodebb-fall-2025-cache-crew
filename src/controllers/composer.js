@@ -15,28 +15,18 @@ exports.get = async function (req, res, callback) {
 		content: 'noindex',
 	};
 
-	const data = await plugins.hooks.fire('filter:composer.build', {
-		req: req,
-		res: res,
-		next: callback,
-		templateData: {},
-	});
+	// Use our custom compose template directly
+	const templateData = {
+		title: '[[modules:composer.compose]]',
+		cid: req.query.cid,
+		tid: req.query.tid,
+		config: {
+			relative_path: nconf.get('relative_path') || '',
+			csrf_token: req.csrfToken ? req.csrfToken() : ''
+		}
+	};
 
-	if (res.headersSent) {
-		return;
-	}
-	if (!data || !data.templateData) {
-		return callback(new Error('[[error:invalid-data]]'));
-	}
-
-	if (data.templateData.disabled) {
-		res.render('', {
-			title: '[[modules:composer.compose]]',
-		});
-	} else {
-		data.templateData.title = '[[modules:composer.compose]]';
-		res.render('compose', data.templateData);
-	}
+	res.render('compose', templateData);
 };
 
 exports.post = async function (req, res) {
@@ -47,6 +37,7 @@ exports.post = async function (req, res) {
 		timestamp: Date.now(),
 		content: body.content,
 		handle: body.handle,
+		anonymous: body.anonymous === '1' || body.anonymous === true,
 		fromQueue: false,
 	};
 	req.body.noscript = 'true';

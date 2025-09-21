@@ -1,7 +1,6 @@
 'use strict';
 
 const _ = require('lodash');
-
 const db = require('../database');
 const utils = require('../utils');
 const user = require('../user');
@@ -10,6 +9,7 @@ const plugins = require('../plugins');
 
 const Posts = module.exports;
 
+// These modules export functions that modify the Posts object
 require('./data')(Posts);
 require('./create')(Posts);
 require('./delete')(Posts);
@@ -49,6 +49,44 @@ Posts.getPostsByPids = async function (pids, uid) {
 
 	let posts = await Posts.getPostsData(pids);
 	posts = await Promise.all(posts.map(Posts.parsePost));
+
+	// 🔥 Mask anonymous posts before plugin hooks
+	posts.forEach((post) => {
+		if (post && parseInt(post.anonymous, 10) === 1) {
+			// Store original for moderation/internal use (optional)
+			post._realUser = { ...post.user };
+
+			// Replace with masked UI values
+			post.user = {
+				uid: 0,
+				username: 'Anonymous',
+				userslug: 'anonymous',
+				displayname: 'Anonymous',
+				picture: null,
+				icon: {
+					bgColor: '#aaa',
+					text: 'A',
+				},
+			};
+		}
+
+		// Handle anonymous parent posts too
+		if (post.parent && parseInt(post.parent.anonymous, 10) === 1) {
+			post.parent._realUser = { ...post.parent.user };
+			post.parent.user = {
+				uid: 0,
+				username: 'Anonymous',
+				userslug: 'anonymous',
+				displayname: 'Anonymous',
+				picture: null,
+				icon: {
+					bgColor: '#aaa',
+					text: 'A',
+				},
+			};
+		}
+	});
+
 	const data = await plugins.hooks.fire('filter:post.getPosts', { posts: posts, uid: uid });
 	if (!data || !Array.isArray(data.posts)) {
 		return [];

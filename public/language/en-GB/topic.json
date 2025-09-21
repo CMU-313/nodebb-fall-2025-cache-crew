@@ -244,6 +244,10 @@
 	"no-more-next-post": "You don't have more posts in this topic",
 	"open-composer": "Open composer",
 	"post-quick-reply": "Quick reply",
+	"post-anonymously": "Post anonymously",
+	"anonymous-posting-help": "When enabled, your post will be published without showing your username or profile information. You can speak freely without worrying about judgment.",
+	"content": "Content",
+	"post-reply": "Post Reply",
 
 	"navigator.index": "Post %1 of %2",
 	"navigator.unread": "%1 unread",
