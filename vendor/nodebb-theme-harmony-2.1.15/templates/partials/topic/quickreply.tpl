@@ -18,7 +18,7 @@
 				<div class="form-check form-switch">
 					<input class="form-check-input" type="checkbox" id="quickreply-anonymous" name="anonymous" value="1">
 					<label class="form-check-label" for="quickreply-anonymous">
-						<i class="fa fa-question-circle text-muted" data-bs-toggle="tooltip" data-bs-placement="top" title="[[topic:anonymous-posting-help]]"></i>
+						<i class="fa fa-question-circle text-muted" data-bs-toggle="tooltip" data-bs-placement="top" title="When enabled, your post will be published without showing your username or profile information. You can speak freely without worrying about judgment."></i>
 						[[topic:post-anonymously]]
 					</label>
 				</div>
