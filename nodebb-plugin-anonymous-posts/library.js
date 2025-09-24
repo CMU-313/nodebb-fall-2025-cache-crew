@@ -3,8 +3,8 @@
 const plugin = {};
 
 plugin.addAnonField = async (data) => {
-  // Ensure the new field exists
-  data.post.is_anonymous = data.post.is_anonymous || false;
+  const isAnonymous = typeof data?.data?.is_anonymous !== 'undefined' ? data.data.is_anonymous : data?.post?.is_anonymous;
+  data.post.is_anonymous = Boolean(isAnonymous);
   return data;
 };
 
