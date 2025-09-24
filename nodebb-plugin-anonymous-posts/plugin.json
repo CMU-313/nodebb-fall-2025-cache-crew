@@ -6,5 +6,8 @@
   "library": "./library.js",
   "hooks": [
     { "hook": "filter:post.create", "method": "addAnonField" }
+  ],
+  "scripts": [
+    "./static/lib/composer-anonymous.js"
   ]
 }
