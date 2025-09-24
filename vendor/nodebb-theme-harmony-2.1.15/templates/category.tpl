@@ -31,6 +31,15 @@
 	</div>
 </div>
 
+<form class="category-search d-flex gap-2 mt-2" action="/search" method="get">
+	<input type="hidden" name="in" value="category:{./cid}">
+	<input type="text" class="form-control" name="term" placeholder="Search in this category...">
+	<button class="btn btn-primary" type="submit">
+		<i class="fa fa-search"></i>
+	</button>
+</form>
+
+
 {{{ if widgets.header.length }}}
 <div data-widget-area="header">
 	{{{ each widgets.header }}}
