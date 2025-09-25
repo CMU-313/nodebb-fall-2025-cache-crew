@@ -1,11 +1,14 @@
 {
   "id": "nodebb-plugin-anonymous-posts",
   "name": "Anonymous Posts",
-  "description": "Adds an is_anonymous field to posts",
+  "description": "Allows users to post anonymously",
   "version": "0.0.1",
   "library": "./library.js",
   "hooks": [
-    { "hook": "filter:post.create", "method": "addAnonField" }
+    {
+      "hook": "filter:post.create",
+      "method": "addAnonField"
+    }
   ],
   "scripts": [
     "./static/lib/composer-anonymous.js"
