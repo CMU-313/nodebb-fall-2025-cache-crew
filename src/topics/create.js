@@ -94,6 +94,7 @@ module.exports = function (Topics) {
 		data.title = String(data.title).trim();
 		data.tags = data.tags || [];
 		data.content = String(data.content || '').trimEnd();
+		data.is_anonymous = utils.parseBoolean(data.is_anonymous, { defaultValue: false });
 		if (!isAdmin) {
 			Topics.checkTitle(data.title);
 		}
@@ -189,8 +190,9 @@ module.exports = function (Topics) {
 
 		data.cid = topicData.cid;
 
-		await guestHandleValid(data);
-		data.content = String(data.content || '').trimEnd();
+	await guestHandleValid(data);
+	data.content = String(data.content || '').trimEnd();
+	data.is_anonymous = utils.parseBoolean(data.is_anonymous, { defaultValue: false });
 
 		if (!data.fromQueue && !isAdmin) {
 			await user.isReadyToPost(uid, data.cid);
