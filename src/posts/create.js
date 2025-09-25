@@ -18,6 +18,7 @@ module.exports = function (Posts) {
 		const content = data.content.toString();
 		const timestamp = data.timestamp || Date.now();
 		const isMain = data.isMain || false;
+		const isAnonymous = utils.parseBoolean(data.is_anonymous, { defaultValue: false });
 
 		if (!uid && parseInt(uid, 10) !== 0) {
 			throw new Error('[[error:invalid-uid]]');
@@ -28,7 +29,7 @@ module.exports = function (Posts) {
 		}
 
 		const pid = data.pid || await db.incrObjectField('global', 'nextPid');
-		let postData = { pid, uid, tid, content, sourceContent, timestamp };
+		let postData = { pid, uid, tid, content, sourceContent, timestamp, is_anonymous: isAnonymous ? 1 : 0 };
 
 		if (data.toPid) {
 			postData.toPid = data.toPid;
