@@ -3,4 +3,5 @@
   "version": "0.0.1",
   "description": "Adds an is_anonymous field to posts",
   "main": "library.js",
+  "author": "Martin Jimenez, Adam Sultan"
 }
