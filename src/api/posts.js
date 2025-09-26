@@ -118,6 +118,13 @@ postsAPI.edit = async function (caller, data) {
 	data.uid = caller.uid;
 	data.req = apiHelpers.buildReqObject(caller);
 	data.timestamp = parseInt(data.timestamp, 10) || Date.now();
+	if (Object.prototype.hasOwnProperty.call(data, 'is_anonymous')) {
+		if (data.is_anonymous === undefined || data.is_anonymous === null) {
+			delete data.is_anonymous;
+		} else {
+			data.is_anonymous = utils.parseBoolean(data.is_anonymous);
+		}
+	}
 
 	const editResult = await posts.edit(data);
 	if (editResult.topic.isMainPost) {
