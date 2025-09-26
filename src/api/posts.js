@@ -155,6 +155,9 @@ postsAPI.edit = async function (caller, data) {
 	const postObj = await posts.getPostSummaryByPids([editResult.post.pid], caller.uid, { parse: false, extraFields: ['edited'] });
 	postObj.content = editResult.post.content; // re-use already parsed html
 	const returnData = { ...postObj[0], ...editResult.post };
+	if (returnData.hasOwnProperty('is_anonymous')) {
+		returnData.is_anonymous = Boolean(Number(returnData.is_anonymous));
+	}
 	returnData.topic = { ...postObj[0].topic, ...editResult.post.topic };
 
 	if (!editResult.post.deleted) {
