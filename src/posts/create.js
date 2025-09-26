@@ -85,6 +85,9 @@ module.exports = function (Posts) {
 
 		const result = await plugins.hooks.fire('filter:post.get', { post: postData, uid: data.uid });
 		result.post.isMain = isMain;
+		if (result.post.hasOwnProperty('is_anonymous')) {
+			result.post.is_anonymous = Boolean(Number(result.post.is_anonymous));
+		}
 		plugins.hooks.fire('action:post.save', { post: { ...result.post, _activitypub } });
 		return result.post;
 	};

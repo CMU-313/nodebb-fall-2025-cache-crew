@@ -75,6 +75,9 @@ module.exports = function (Posts) {
 		postData.deleted = !!postData.deleted;
 
 		const returnPostData = { ...postData, ...result.post };
+		if (returnPostData.hasOwnProperty('is_anonymous')) {
+			returnPostData.is_anonymous = Boolean(Number(returnPostData.is_anonymous));
+		}
 		returnPostData.cid = topic.cid;
 		returnPostData.topic = topic;
 		returnPostData.editedISO = utils.toISOString(editPostData.edited);
