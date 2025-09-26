@@ -7,6 +7,7 @@ const plugins = require('../plugins');
 const topics = require('../topics');
 const posts = require('../posts');
 const helpers = require('./helpers');
+const utils = require('../utils');
 
 exports.get = async function (req, res, callback) {
 	res.locals.metaTags = {
@@ -49,6 +50,11 @@ exports.post = async function (req, res) {
 		handle: body.handle,
 		fromQueue: false,
 	};
+	try {
+		data.is_anonymous = utils.parseBoolean(body.is_anonymous, { defaultValue: false });
+	} catch (err) {
+		return helpers.noScriptErrors(req, res, err.message, 400);
+	}
 	req.body.noscript = 'true';
 
 	if (!data.content) {
