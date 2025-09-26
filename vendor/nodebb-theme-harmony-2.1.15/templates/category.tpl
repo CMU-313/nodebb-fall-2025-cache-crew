@@ -31,6 +31,47 @@
 	</div>
 </div>
 
+<form id="category-search" class="category-search d-flex gap-2 mt-2">
+	<input type="hidden" name="in" value="category:{./cid}">
+	<input type="text" class="form-control" name="term" placeholder="Search in this category...">
+	<button class="btn btn-primary" type="submit">
+		<i class="fa fa-search"></i>
+	</button>
+</form>
+
+<script>window.csrfToken = "{{config.csrf_token}}";</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('category-search');
+  if (!form) return;
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const term = form.querySelector('input[name="term"]').value.trim();
+    const category = form.querySelector('input[name="in"]').value;
+
+	console.log("term", term, "category", category);
+
+    if (!term) return console.log('No search term');
+
+    const url = `/api/mysearch?term=${encodeURIComponent(term)}&category=${encodeURIComponent(category)}`;
+
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { 'CSRF-Token': window.csrfToken }
+      });
+      const data = await resp.json();
+      console.log('Search results', data.results); // minimal debug
+    } catch (err) {
+      console.error('Search failed', err);
+    }
+  });
+});
+</script>
+
 {{{ if widgets.header.length }}}
 <div data-widget-area="header">
 	{{{ each widgets.header }}}
