@@ -143,7 +143,7 @@
     "maintenanceMode": 0,
     "maintenanceModeStatus": 503,
     "upvoteVisibility": "all",
-    "downvoteVisibility": "privileged",
+    "downvoteVisibility": "all",
     "maximumInvites": 0,
     "username:disableEdit": 0,
     "email:disableEdit": 0,
