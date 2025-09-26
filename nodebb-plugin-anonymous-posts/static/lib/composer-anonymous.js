@@ -21,6 +21,7 @@ require(['hooks', 'composer'], function (hooks, composer) {
 			return;
 		}
 
+		// Create the toggle HTML element
 		const uuid = postContainer.attr('data-uuid');
 		const inputId = `composer-anonymous-${uuid}`;
 		const toggleEl = $(`
@@ -29,6 +30,8 @@ require(['hooks', 'composer'], function (hooks, composer) {
 				<label class="form-check-label" for="${inputId}">Post Anonymously</label>
 			</div>
 		`);
+
+		// Set the checked state and add event listener
 		const inputEl = toggleEl.find('input');
 		inputEl.prop('checked', !!postData.is_anonymous);
 		inputEl.on('change', function () {

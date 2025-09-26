@@ -118,6 +118,8 @@ postsAPI.edit = async function (caller, data) {
 	data.uid = caller.uid;
 	data.req = apiHelpers.buildReqObject(caller);
 	data.timestamp = parseInt(data.timestamp, 10) || Date.now();
+
+	// Parse the is_anonymous flag
 	if (Object.prototype.hasOwnProperty.call(data, 'is_anonymous')) {
 		if (data.is_anonymous === undefined || data.is_anonymous === null) {
 			delete data.is_anonymous;
@@ -153,7 +155,7 @@ postsAPI.edit = async function (caller, data) {
 		});
 	}
 	const postObj = await posts.getPostSummaryByPids([editResult.post.pid], caller.uid, { parse: false, extraFields: ['edited'] });
-	postObj.content = editResult.post.content; // re-use already parsed html
+	postObj.content = editResult.post.content;
 	const returnData = { ...postObj[0], ...editResult.post };
 	if (returnData.hasOwnProperty('is_anonymous')) {
 		returnData.is_anonymous = Boolean(Number(returnData.is_anonymous));
@@ -468,13 +470,13 @@ async function canSeeVotes(uid, cids, type) {
 	const cidToAllowed = _.zipObject(uniqCids, canRead);
 	const checks = cids.map(
 		(cid, index) => isAdmin || isMod[index] ||
-		(
-			cidToAllowed[cid] &&
 			(
-				meta.config[type] === 'all' ||
-				(meta.config[type] === 'loggedin' && parseInt(uid, 10) > 0)
+				cidToAllowed[cid] &&
+				(
+					meta.config[type] === 'all' ||
+					(meta.config[type] === 'loggedin' && parseInt(uid, 10) > 0)
+				)
 			)
-		)
 	);
 	return isArray ? checks : checks[0];
 }
