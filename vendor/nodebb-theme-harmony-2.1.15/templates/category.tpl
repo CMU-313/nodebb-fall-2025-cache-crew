@@ -39,20 +39,35 @@
 	</button>
 </form>
 
+<script>window.csrfToken = "{{config.csrf_token}}";</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('category-search');
   if (!form) return;
 
-  console.log(form);
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault(); // stop the page reload
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
     const term = form.querySelector('input[name="term"]').value.trim();
     const category = form.querySelector('input[name="in"]').value;
 
-    console.log('DEBUG: User typed:', term);
-    console.log('DEBUG: Category:', category);
+	console.log("term", term, "category", category);
+
+    if (!term) return console.log('No search term');
+
+    const url = `/api/mysearch?term=${encodeURIComponent(term)}&category=${encodeURIComponent(category)}`;
+
+    try {
+      const resp = await fetch(url, {
+        method: 'GET',
+        credentials: 'same-origin',
+        headers: { 'CSRF-Token': window.csrfToken }
+      });
+      const data = await resp.json();
+      console.log('Search results', data.results); // minimal debug
+    } catch (err) {
+      console.error('Search failed', err);
+    }
   });
 });
 </script>
