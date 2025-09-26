@@ -1,0 +1,13 @@
+{
+    "name": "nodebb-plugin-anon-toggle",
+    "version": "0.1.0",
+    "description": "Adds a 'Post anonymously' checkbox to the composer.",
+    "main": "static/lib/library.js",
+    "private": true,
+    "license": "GPL-3.0",
+    "files": [
+        "plugin.json",
+        "static/lib/client.js",
+        "static/lib/library.js"
+    ]
+}
