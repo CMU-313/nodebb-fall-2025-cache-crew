@@ -31,7 +31,7 @@
 	</div>
 </div>
 
-<form class="category-search d-flex gap-2 mt-2" action="/search" method="get">
+<form id="category-search" class="category-search d-flex gap-2 mt-2">
 	<input type="hidden" name="in" value="category:{./cid}">
 	<input type="text" class="form-control" name="term" placeholder="Search in this category...">
 	<button class="btn btn-primary" type="submit">
@@ -39,6 +39,23 @@
 	</button>
 </form>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('category-search');
+  if (!form) return;
+
+  console.log(form);
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault(); // stop the page reload
+    const term = form.querySelector('input[name="term"]').value.trim();
+    const category = form.querySelector('input[name="in"]').value;
+
+    console.log('DEBUG: User typed:', term);
+    console.log('DEBUG: Category:', category);
+  });
+});
+</script>
 
 {{{ if widgets.header.length }}}
 <div data-widget-area="header">
