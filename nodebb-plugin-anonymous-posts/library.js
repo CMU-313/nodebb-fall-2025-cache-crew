@@ -4,6 +4,7 @@ const plugin = {};
 
 // Add the "is_anonymous" field to the post data when absent
 plugin.addAnonField = async (data) => {
+  // Get the existing is_anonymous flag
   const existing = typeof data?.post?.is_anonymous !== 'undefined' ? data.post.is_anonymous : data?.data?.is_anonymous;
 
   if (typeof existing === 'undefined') {
@@ -19,6 +20,8 @@ plugin.addAnonField = async (data) => {
   return data;
 };
 
+// Normalize the flag value
+// Utilized ChatGPT-5 to help with the code
 function normalizeFlag(value) {
   if (typeof value === 'number') {
     return value ? 1 : 0;
