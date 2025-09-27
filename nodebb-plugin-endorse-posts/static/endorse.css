@@ -1,0 +1,11 @@
+.endorse-badge {
+  display: none;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid currentColor;
+  margin-right: 8px;
+}
+.endorse-badge.is-on { display: inline-block; }
+.endorse-toggle { cursor: pointer; }
