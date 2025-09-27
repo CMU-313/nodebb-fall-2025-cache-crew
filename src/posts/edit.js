@@ -75,6 +75,9 @@ module.exports = function (Posts) {
 		postData.deleted = !!postData.deleted;
 
 		const returnPostData = { ...postData, ...result.post };
+		if (returnPostData.hasOwnProperty('is_anonymous')) {
+			returnPostData.is_anonymous = Boolean(Number(returnPostData.is_anonymous));
+		}
 		returnPostData.cid = topic.cid;
 		returnPostData.topic = topic;
 		returnPostData.editedISO = utils.toISOString(editPostData.edited);
@@ -197,6 +200,11 @@ module.exports = function (Posts) {
 			sourceContent: data.sourceContent,
 			editor: data.uid,
 		};
+
+		if (Object.prototype.hasOwnProperty.call(data, 'is_anonymous')) {
+			const isAnonymous = utils.parseBoolean(data.is_anonymous, { defaultValue: false });
+			editPostData.is_anonymous = isAnonymous ? 1 : 0;
+		}
 
 		// For posts in scheduled topics, if edited before, use edit timestamp
 		editPostData.edited = topicData.scheduled ? (postData.edited || postData.timestamp) + 1 : Date.now();

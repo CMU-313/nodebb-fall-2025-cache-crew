@@ -19,7 +19,6 @@ const translator = require('../translator');
 
 module.exports = function (Topics) {
 	Topics.create = async function (data) {
-		// This is an internal method, consider using Topics.post instead
 		const timestamp = data.timestamp || Date.now();
 
 		const tid = data.tid || await db.incrObjectField('global', 'nextTid');
@@ -91,9 +90,11 @@ module.exports = function (Topics) {
 			privileges.users.isAdministrator(uid),
 		]);
 
+		// Assign values to the data object
 		data.title = String(data.title).trim();
 		data.tags = data.tags || [];
 		data.content = String(data.content || '').trimEnd();
+		data.is_anonymous = utils.parseBoolean(data.is_anonymous, { defaultValue: false });
 		if (!isAdmin) {
 			Topics.checkTitle(data.title);
 		}
@@ -158,7 +159,6 @@ module.exports = function (Topics) {
 			setImmediate(async () => {
 				try {
 					if (utils.isNumber(uid)) {
-						// New topic notifications only sent for local-to-local follows only
 						await user.notifications.sendTopicNotificationToFollowers(uid, topicData, postData);
 					}
 
@@ -191,6 +191,7 @@ module.exports = function (Topics) {
 
 		await guestHandleValid(data);
 		data.content = String(data.content || '').trimEnd();
+		data.is_anonymous = utils.parseBoolean(data.is_anonymous, { defaultValue: false });
 
 		if (!data.fromQueue && !isAdmin) {
 			await user.isReadyToPost(uid, data.cid);

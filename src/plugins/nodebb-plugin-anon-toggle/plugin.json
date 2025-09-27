@@ -1,0 +1,13 @@
+{
+    "id": "nodebb-plugin-anon-toggle",
+    "name": "Anon Toggle",
+    "staticDirs": {
+        "lib": "static/lib"
+    },
+    "scripts": [
+        "static/lib/client.js"
+    ],
+    "nbbpm": {
+        "compatibility": "^4.4.0"
+    }
+}

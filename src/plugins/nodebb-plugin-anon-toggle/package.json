@@ -1,0 +1,12 @@
+{
+    "name": "nodebb-plugin-anon-toggle",
+    "version": "0.1.0",
+    "description": "Adds a 'Post anonymously' toggle to the composer.",
+    "main": "static/lib/library.js",
+    "private": true,
+    "files": [
+        "plugin.json",
+        "static/lib/client.js",
+        "static/lib/library.js"
+    ]
+}
