@@ -155,6 +155,9 @@ PostObject:
       type: boolean
     replies:
       type: number
+    is_anonymous:
+      type: boolean
+      description: Indicates whether this post was submitted anonymously
 PostDataObject:
   description: The output as returned from `Posts.getPostsData`
   allOf:
@@ -188,6 +191,9 @@ PostDataObject:
           type: number
         edited:
           type: number
+        is_anonymous:
+          type: number
+          description: 1 when submitted anonymously, otherwise 0
         timestampISO:
           type: string
           description: An ISO 8601 formatted date string (complementing `timestamp`)

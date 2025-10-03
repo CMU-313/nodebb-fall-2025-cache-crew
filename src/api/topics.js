@@ -11,6 +11,7 @@ const privileges = require('../privileges');
 const events = require('../events');
 const batch = require('../batch');
 const activitypub = require('../activitypub');
+const utils = require('../utils');
 
 const activitypubApi = require('./activitypub');
 const apiHelpers = require('./helpers');
@@ -63,6 +64,7 @@ topicsAPI.create = async function (caller, data) {
 	const payload = { ...data };
 	delete payload.tid;
 	payload.tags = payload.tags || [];
+	payload.is_anonymous = utils.parseBoolean(payload.is_anonymous, { defaultValue: false });
 	apiHelpers.setDefaultPostData(caller, payload);
 	const isScheduling = parseInt(data.timestamp, 10) > payload.timestamp;
 	if (isScheduling) {
@@ -99,6 +101,7 @@ topicsAPI.reply = async function (caller, data) {
 	}
 	const payload = { ...data };
 	delete payload.pid;
+	payload.is_anonymous = utils.parseBoolean(payload.is_anonymous, { defaultValue: false });
 	apiHelpers.setDefaultPostData(caller, payload);
 
 	await meta.blacklist.test(caller.ip);
