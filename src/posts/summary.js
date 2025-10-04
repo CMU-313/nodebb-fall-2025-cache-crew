@@ -53,8 +53,12 @@ async function getPostSummaryByPids(Posts, { pids, uid, options }) {
 		// toPid is nullable so it is casted separately
 		post.toPid = utils.isNumber(post.toPid) ? parseInt(post.toPid, 10) : post.toPid;
 
-		post.user = uidToUser[post.uid];
-		Posts.overrideGuestHandle(post, post.handle);
+		const mappedUser = uidToUser[post.uid];
+		const baseUser = mappedUser ? { ...mappedUser } : { uid: post.uid };
+		post.user = Posts.isAnonymous(post) ? Posts.anonymizeUser(baseUser, post.uid) : baseUser;
+		if (!Posts.isAnonymous(post)) {
+			Posts.overrideGuestHandle(post, post.handle);
+		}
 		post.handle = undefined;
 		post.topic = tidToTopic[post.tid];
 		post.category = post.topic && cidToCategory[post.topic.cid];
