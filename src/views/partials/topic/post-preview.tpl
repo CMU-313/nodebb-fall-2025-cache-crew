@@ -2,8 +2,13 @@
     <div class="d-flex flex-column gap-2">
         <div class="d-flex gap-2 align-items-center">
             <div>
+                {{{ if post.is_anonymous }}}
+                <span aria-hidden="true">{buildAvatar(post.user, "20px", true, "", "user/picture")}</span>
+                <span>{post.user.username}</span>
+                {{{ else }}}
                 <a href="{{{ if post.user.userslug }}}{config.relative_path}/user/{post.user.userslug}{{{ else }}}#{{{ end }}}">{buildAvatar(post.user, "20px", true, "", "user/picture")}</a>
                 <a href="{{{ if post.user.userslug }}}{config.relative_path}/user/{post.user.userslug}{{{ else }}}#{{{ end }}}">{post.user.username}</a>
+                {{{ end }}}
             </div>
             <div>
                 <a href="{config.relative_path}/post/{post.pid}" class="timeago text-xs text-secondary lh-1" style="vertical-align: middle;" title="{post.timestampISO}"></a>
