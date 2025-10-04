@@ -134,21 +134,27 @@ module.exports = function (Topics) {
 		]);
 
 		postData.forEach((postObj, i) => {
-			if (postObj) {
-				postObj.user = postObj.uid ? userData[postObj.uid] : { ...userData[postObj.uid] };
-				postObj.editor = postObj.editor ? editors[postObj.editor] : null;
-				postObj.bookmarked = bookmarks[i];
-				postObj.upvoted = voteData.upvotes[i];
-				postObj.downvoted = voteData.downvotes[i];
-				postObj.votes = postObj.votes || 0;
-				postObj.replies = replies[i];
-				postObj.selfPost = parseInt(uid, 10) > 0 && parseInt(uid, 10) === postObj.uid;
+			if (!postObj) {
+				return;
+			}
+			const mappedUser = userData[postObj.uid];
+			const baseUser = mappedUser ? { ...mappedUser } : { uid: postObj.uid };
+			postObj.user = posts.isAnonymous(postObj) ?
+				posts.anonymizeUser(baseUser, postObj.uid) :
+				baseUser;
+			postObj.editor = postObj.editor ? editors[postObj.editor] : null;
+			postObj.bookmarked = bookmarks[i];
+			postObj.upvoted = voteData.upvotes[i];
+			postObj.downvoted = voteData.downvotes[i];
+			postObj.votes = postObj.votes || 0;
+			postObj.replies = replies[i];
+			postObj.selfPost = parseInt(uid, 10) > 0 && parseInt(uid, 10) === postObj.uid;
 
-				// Username override for guests, if enabled
-				if (meta.config.allowGuestHandles && postObj.uid === 0 && postObj.handle) {
-					postObj.user.username = validator.escape(String(postObj.handle));
-					postObj.user.displayname = postObj.user.username;
-				}
+			// Change so that anonymous posts are not overridden with the guest handle
+			// Username override for guests, if enabled
+			if (!posts.isAnonymous(postObj) && meta.config.allowGuestHandles && postObj.uid === 0 && postObj.handle) {
+				postObj.user.username = validator.escape(String(postObj.handle));
+				postObj.user.displayname = postObj.user.username;
 			}
 		});
 
@@ -192,7 +198,8 @@ module.exports = function (Topics) {
 		const pidToPrivs = _.zipObject(parentPids, postPrivileges);
 
 		parentPids = parentPids.filter(p => pidToPrivs[p]['topics:read']);
-		const parentPosts = await posts.getPostsFields(parentPids, ['uid', 'pid', 'timestamp', 'content', 'sourceContent', 'deleted']);
+		// Check if the parent posts are anonymous
+		const parentPosts = await posts.getPostsFields(parentPids, ['uid', 'pid', 'timestamp', 'content', 'sourceContent', 'deleted', 'is_anonymous']);
 		const parentUids = _.uniq(parentPosts.map(postObj => postObj && postObj.uid));
 		const userData = await user.getUsersFields(parentUids, ['username', 'userslug', 'picture']);
 
@@ -215,13 +222,15 @@ module.exports = function (Topics) {
 		const parents = {};
 		parentPosts.forEach((post, i) => {
 			if (usersMap[post.uid]) {
+				const parentUser = { ...usersMap[post.uid] };
 				parents[parentPids[i]] = {
 					uid: post.uid,
 					pid: post.pid,
 					content: post.content,
-					user: usersMap[post.uid],
+					user: posts.isAnonymous(post) ? posts.anonymizeUser(parentUser, post.uid) : parentUser,
 					timestamp: post.timestamp,
 					timestampISO: post.timestampISO,
+					is_anonymous: posts.isAnonymous(post),
 				};
 			}
 		});

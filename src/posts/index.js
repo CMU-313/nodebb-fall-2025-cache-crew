@@ -11,6 +11,7 @@ const plugins = require('../plugins');
 const Posts = module.exports;
 
 require('./data')(Posts);
+require('./anonymous')(Posts);
 require('./create')(Posts);
 require('./delete')(Posts);
 require('./edit')(Posts);
