@@ -10,6 +10,11 @@
 {{{ end }}}
 <div class="d-flex align-items-start gap-3 post-container-parent">
 	<div class="bg-body d-none d-sm-block rounded-circle" style="outline: 2px solid var(--bs-body-bg);">
+		{{{ if posts.is_anonymous }}}
+		<span class="d-inline-block position-relative text-decoration-none" aria-hidden="true">
+			{buildAvatar(posts.user, "48px", true, "", "user/picture")}
+		</span>
+		{{{ else }}}
 		<a class="d-inline-block position-relative text-decoration-none" href="{{{ if ./user.userslug }}}{config.relative_path}/user/{./user.userslug}{{{ else }}}#{{{ end }}}" aria-label="[[aria:profile-page-for, {./user.displayname}]]">
 			{buildAvatar(posts.user, "48px", true, "", "user/picture")}
 			{{{ if ./user.isLocal }}}
@@ -21,6 +26,7 @@
 			</span>
 			{{{ end }}}
 		</a>
+		{{{ end }}}
 	</div>
 	<div class="post-container d-flex gap-2 flex-grow-1 flex-column w-100" style="min-width:0;">
 		<div class="d-flex align-items-start justify-content-between gap-1 flex-nowrap w-100 post-header" itemprop="author" itemscope itemtype="https://schema.org/Person">
@@ -30,6 +36,11 @@
 
 				<div class="d-flex flex-nowrap gap-1 align-items-center text-truncate">
 					<div class="bg-body d-sm-none">
+						{{{ if posts.is_anonymous }}}
+						<span class="d-inline-block position-relative text-decoration-none" aria-hidden="true">
+							{buildAvatar(posts.user, "20px", true, "", "user/picture")}
+						</span>
+						{{{ else }}}
 						<a class="d-inline-block position-relative text-decoration-none" href="{{{ if ./user.userslug }}}{config.relative_path}/user/{./user.userslug}{{{ else }}}#{{{ end }}}">
 							{buildAvatar(posts.user, "20px", true, "", "user/picture")}
 							{{{ if ./user.isLocal }}}
@@ -41,9 +52,14 @@
 							</span>
 							{{{ end }}}
 						</a>
+						{{{ end }}}
 					</div>
 
+					{{{ if posts.is_anonymous }}}
+					<span class="fw-bold text-nowrap text-truncate">{posts.user.displayname}</span>
+					{{{ else }}}
 					<a class="fw-bold text-nowrap text-truncate" href="{{{ if ./user.userslug }}}{config.relative_path}/user/{./user.userslug}{{{ else }}}#{{{ end }}}" data-username="{posts.user.username}" data-uid="{posts.user.uid}">{posts.user.displayname}</a>
+					{{{ end }}}
 				</div>
 
 				{{{ each posts.user.selectedGroups }}}
