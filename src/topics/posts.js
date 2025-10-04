@@ -375,7 +375,8 @@ module.exports = function (Topics) {
 
 		const uniquePids = _.uniq(_.flatten(arrayOfReplyPids));
 
-		let replyData = await posts.getPostsFields(uniquePids, ['pid', 'uid', 'timestamp']);
+		// Check if the replies are anonymous
+		let replyData = await posts.getPostsFields(uniquePids, ['pid', 'uid', 'timestamp', 'is_anonymous']);
 		const result = await plugins.hooks.fire('filter:topics.getPostReplies', {
 			uid: callerUid,
 			replies: replyData,
@@ -408,10 +409,11 @@ module.exports = function (Topics) {
 			replyPids.sort((a, b) => pidMap[a].timestamp - pidMap[b].timestamp);
 
 			replyPids.forEach((replyPid) => {
-				const replyData = pidMap[replyPid];
-				if (!uidsUsed[replyData.uid] && currentData.users.length < 6) {
-					currentData.users.push(uidMap[replyData.uid]);
-					uidsUsed[replyData.uid] = true;
+				const reply = pidMap[replyPid];
+				if (!uidsUsed[reply.uid] && currentData.users.length < 6) {
+					const replyUser = uidMap[reply.uid] ? { ...uidMap[reply.uid] } : { uid: reply.uid };
+					currentData.users.push(posts.isAnonymous(reply) ? posts.anonymizeUser(replyUser, reply.uid) : replyUser);
+					uidsUsed[reply.uid] = true;
 				}
 			});
 
