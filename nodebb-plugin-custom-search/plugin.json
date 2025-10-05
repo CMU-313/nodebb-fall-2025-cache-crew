@@ -15,7 +15,7 @@
       "method": "init"
     },
     {
-      "hook": "filter:router.page",
+      "hook": "static:app.load",
       "method": "addRoutes"
     }
   ]

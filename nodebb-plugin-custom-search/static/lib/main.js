@@ -49,6 +49,7 @@ $(document).ready(function() {
 
       try {
         const response = await this.fetchSearchResults(term, category);
+        console.log("Search response:", response);
         this.renderResults(response.results, topicsContainer);
       } catch (error) {
         console.error('Search error:', error);
@@ -59,8 +60,11 @@ $(document).ready(function() {
     fetchSearchResults: async function(term, category) {
       const params = new URLSearchParams({
         term: term,
+        asAdmin: '1', // TEMPORARY: Force admin search for debugging
         ...(category && { in: category })
       });
+
+      console.log("Fetching:", `/api/custom-search?${params}`);
 
       const response = await fetch(`/api/custom-search?${params}`, {
         method: 'GET',
@@ -88,23 +92,24 @@ $(document).ready(function() {
       }
 
       results.forEach(item => {
-        const topic = item.topic || {};
-        const post = item.post || {};
+        // Handle different result formats from NodeBB search
+        const topic = item.topic || item;
+        const post = item.post || item;
         const user = item.user || {};
         const category = item.category || {};
 
         // Create snippet from post content
-        const snippet = this.createSnippet(post.content || topic.title || '', 200);
-        const postUrl = `/topic/${topic.tid}/${topic.slug}${post.pid ? '/' + post.pid : ''}`;
-        const timeAgo = this.timeAgo(post.timestamp || topic.timestamp);
+        const snippet = this.createSnippet(post.content || topic.teaser?.content || '', 200);
+        const postUrl = `/topic/${topic.slug || topic.tid}${post.pid ? '/' + post.pid : ''}`;
+        const timeAgo = this.timeAgo(post.timestamp || topic.timestamp || topic.lastposttime);
 
         const html = `
           <li class="category-item hover-parent border-bottom py-3 py-lg-4 d-flex flex-column flex-lg-row align-items-start" 
-              data-tid="${topic.tid}" data-type="${item.type}">
+              data-tid="${topic.tid}" data-type="${item.type || 'topic'}">
             <div class="d-flex p-0 col-12 col-lg-7 gap-2 gap-lg-3 pe-1 align-items-start">
               <div class="flex-grow-1">
                 <h3 class="title text-break fs-5 fw-semibold m-0">
-                  <a class="text-reset" href="${postUrl}">${this.escapeHtml(topic.title || 'Untitled')}</a>
+                  <a class="text-reset" href="${postUrl}">${this.escapeHtml(topic.title || post.topic?.title || 'Untitled')}</a>
                   ${item.type === 'post' ? '<small class="text-muted ms-2">(Post)</small>' : ''}
                 </h3>
                 ${snippet ? `<p class="text-muted mt-1 mb-0">${snippet}</p>` : ''}
@@ -113,9 +118,9 @@ $(document).ready(function() {
             </div>
             <div class="d-flex p-0 col-lg-5 col-12 align-content-stretch">
               <div class="meta stats d-none d-lg-flex col-12 gap-2 pe-2 text-muted align-items-center justify-content-end">
-                <span>${this.escapeHtml(user.username || 'Unknown')}</span>
+                <span>${this.escapeHtml(user.username || topic.user?.username || 'Unknown')}</span>
                 ${timeAgo ? `<span class="ms-2">${timeAgo}</span>` : ''}
-                <span class="ms-2 badge bg-secondary">${item.score || 0}</span>
+                ${item.score ? `<span class="ms-2 badge bg-secondary">${item.score}</span>` : ''}
               </div>
             </div>
           </li>
