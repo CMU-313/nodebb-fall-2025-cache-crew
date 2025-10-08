@@ -4,6 +4,7 @@ $(document).ready(function() {
   const CustomSearch = {
     MIN_CHARS: 3,
     originalTopicsHTML: null,
+    currentSearchTerm: '',
     
     init: function() {
       const topicsContainer = document.getElementById('topics-container');
@@ -67,6 +68,9 @@ $(document).ready(function() {
       
       const term = (termInput?.value || '').trim();
       const category = categoryInput?.value || '';
+
+      // Store the current search term for highlighting
+      this.currentSearchTerm = term;
 
       if (term.length < this.MIN_CHARS) {
         this.restoreOriginal(topicsContainer);
@@ -149,6 +153,9 @@ $(document).ready(function() {
         container.innerHTML = '';
         $(container).append(html);
         
+        // Highlight search terms in the rendered results
+        this.highlightSearchTerms(container);
+        
         // Re-initialize NodeBB components
         $(document).trigger('action:topics.loaded', { topics: topicsData });
         
@@ -177,6 +184,9 @@ $(document).ready(function() {
         
         container.innerHTML = '';
         $(container).append(html);
+        
+        // Highlight search terms
+        this.highlightSearchTerms(container);
         
         if ($.fn.timeago) {
           $(container).find('.timeago').timeago();
@@ -274,6 +284,48 @@ $(document).ready(function() {
       const div = document.createElement('div');
       div.innerHTML = html;
       return div.textContent || div.innerText || '';
+    },
+
+    escapeHtml: function(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    },
+
+    highlightSearchTerms: function(container) {
+      if (!this.currentSearchTerm) return;
+
+      const tokens = String(this.currentSearchTerm).toLowerCase().split(/\s+/).filter(t => t.length > 0);
+      if (tokens.length === 0) return;
+
+      // Build a single regex to match any token (one-pass replacement avoids corrupting HTML)
+      const regex = new RegExp('(' + tokens.map(t => this.escapeRegex(t)).join('|') + ')', 'gi');
+
+      // Highlight titles
+      const titles = container.querySelectorAll('h3.title a');
+      titles.forEach(titleLink => {
+        const originalText = titleLink.textContent || '';
+        const escaped = this.escapeHtml(originalText);
+        const highlighted = escaped.replace(regex, '<mark class="search-highlight">$1</mark>');
+        if (highlighted !== escaped) {
+          titleLink.innerHTML = highlighted;
+        }
+      });
+
+      // Also highlight snippet/teaser content if present
+      const snippets = container.querySelectorAll('.post-content, .teaser .post-content, .post-snippet');
+      snippets.forEach(el => {
+        const original = el.textContent || '';
+        const escaped = this.escapeHtml(original);
+        const highlighted = escaped.replace(regex, '<mark class="search-highlight">$1</mark>');
+        if (highlighted !== escaped) {
+          el.innerHTML = highlighted;
+        }
+      });
+    },
+
+    escapeRegex: function(str) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     },
 
     restoreOriginal: function(container) {

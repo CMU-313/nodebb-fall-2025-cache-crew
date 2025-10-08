@@ -9,6 +9,9 @@
   "scripts": [
     "static/lib/main.js"
   ],
+  "css": [
+    "static/style.css"
+  ],
   "hooks": [
     {
       "hook": "static:app.load",

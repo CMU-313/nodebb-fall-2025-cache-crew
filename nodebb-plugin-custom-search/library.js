@@ -47,8 +47,9 @@ plugin.addRoutes = function (params, callback) {
       // Load topics data as admin so we get titles and mainPid
       const topicsData = await topics.getTopicsByTids(tids, { uid: adminUid });
 
-      const pidsToCheck = [];
+  const pidsToCheck = [];
       const matchedPids = [];
+  const tidsToScanReplies = [];
 
       for (const t of topicsData) {
         if (!t) continue;
@@ -62,6 +63,9 @@ plugin.addRoutes = function (params, callback) {
 
         // otherwise schedule main post content for checking
         if (t.mainPid) pidsToCheck.push(t.mainPid);
+
+        // schedule scanning recent replies for this topic as well (limited per topic)
+        tidsToScanReplies.push(t.tid);
       }
 
       // Load the main posts' content in batches
@@ -76,8 +80,37 @@ plugin.addRoutes = function (params, callback) {
         }
       }
 
+      // Also scan recent replies for each topic (limited) — avoid scanning too many replies
+      const MAX_REPLIES_PER_TOPIC = 5;
+      const replyPids = [];
+      for (let j = 0; j < tidsToScanReplies.length; j++) {
+        const tid = tidsToScanReplies[j];
+        try {
+          const recentPids = await db.getSortedSetRevRange(`tid:${tid}:posts`, 0, MAX_REPLIES_PER_TOPIC - 1);
+          if (Array.isArray(recentPids) && recentPids.length) {
+            // exclude mainPid duplicates later when deduping
+            replyPids.push(...recentPids.map(pid => parseInt(pid, 10)));
+          }
+        } catch (e) {
+          // ignore per-topic failures
+          console.warn('[Custom Search] failed to load replies for tid', tid, e.message || e);
+        }
+      }
+
+      // Check reply post contents in batches
+      const allReplyPids = Array.from(new Set(replyPids));
+      for (let i = 0; i < allReplyPids.length; i += BATCH) {
+        const batch = allReplyPids.slice(i, i + BATCH);
+        const postsFields = await posts.getPostsFields(batch, ['pid', 'content', 'sourceContent']);
+        for (const pf of postsFields) {
+          if (!pf) continue;
+          const content = (pf.sourceContent || pf.content || '').toString().toLowerCase();
+          if (content.includes(searchTerm)) matchedPids.push(pf.pid);
+        }
+      }
+
       // Deduplicate and limit results
-      const uniquePids = Array.from(new Set(matchedPids)).slice(0, 50);
+  const uniquePids = Array.from(new Set(matchedPids)).slice(0, 50);
 
       const summaries = uniquePids.length ? await posts.getPostSummaryByPids(uniquePids, adminUid, { stripTags: false }) : [];
 
@@ -91,7 +124,7 @@ plugin.addRoutes = function (params, callback) {
   // Basic info endpoint to help pick search terms
   router.get('/api/custom-search/info', async (req, res) => {
     try {
-      const totalTopics = await db.getSortedSetCard('topics:tid');
+  const totalTopics = await topics.getTopicsCount();
       const adminUids = await groups.getMembers('administrators', 0, 1);
       const adminUid = (adminUids && adminUids.length) ? adminUids[0] : 1;
 
