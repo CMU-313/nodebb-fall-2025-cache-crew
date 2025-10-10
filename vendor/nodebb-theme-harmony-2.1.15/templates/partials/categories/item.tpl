@@ -60,6 +60,20 @@
 				<span class="d-none d-xl-flex text-lowercase text-xs">[[global:posts]]</span>
 				<i class="d-xl-none fa-regular fa-fw text-xs text-muted opacity-75 fa-message"></i>
 			</div>
+			<div class="card card-header border-0 p-2 overflow-hidden rounded-1 d-flex flex-column align-items-center">
+				<span class="fs-5 ff-secondary lh-1" title="{./totalViewCount}">
+					{humanReadableNumber(./totalViewCount, 0)}
+				</span>
+				<span class="d-none d-xl-flex text-lowercase text-xs">[[global:views]]</span>
+				<i class="d-xl-none fa fa-fw text-xs text-muted opacity-75 fa-eye"></i>
+			</div>
+			<div class="card card-header border-0 p-2 overflow-hidden rounded-1 d-flex flex-column align-items-center">
+				<span class="fs-5 ff-secondary lh-1" title="{./totalUpvoteCount}">
+					{humanReadableNumber(./totalUpvoteCount, 0)}
+				</span>
+				<span class="d-none d-xl-flex text-lowercase text-xs">[[global:upvotes]]</span>
+				<i class="d-xl-none fa fa-fw text-xs text-muted opacity-75 fa-thumbs-up"></i>
+			</div>
 		</div>
 		{{{ if !config.hideCategoryLastPost }}}
 		<div component="topic/teaser" class="teaser ps-5 ps-lg-0 col-lg-6 col-12 {{{ if !config.theme.mobileTopicTeasers }}}d-none d-lg-block{{{ end }}}">

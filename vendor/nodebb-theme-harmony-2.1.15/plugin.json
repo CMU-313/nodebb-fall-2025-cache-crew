@@ -5,10 +5,12 @@
 		{ "hook": "filter:admin.header.build", "method": "addAdminNavigation" },
 		{ "hook": "filter:widgets.getAreas", "method": "defineWidgetAreas" },
 		{ "hook": "filter:config.get", "method": "getThemeConfig" },
-		{ "hook": "filter:settings.get", "method": "getAdminSettings"},
+		{ "hook": "filter:settings.get", "method": "getAdminSettings" },
 		{ "hook": "filter:user.saveSettings", "method": "saveUserSettings" },
 		{ "hook": "filter:user.profileMenu", "method": "addProfileItem" },
-		{ "hook": "filter:middleware.renderHeader", "method": "filterMiddlewareRenderHeader" }
+		{ "hook": "filter:middleware.renderHeader", "method": "filterMiddlewareRenderHeader" },
+		{ "hook": "filter:categories.build", "method": "addCategoryStats" },
+		{ "hook": "filter:categories.get", "method": "addCategoryStats" }
 	],
 	"scripts": [
 		"public/harmony.js"
