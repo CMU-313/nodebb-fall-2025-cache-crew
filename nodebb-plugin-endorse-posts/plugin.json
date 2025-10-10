@@ -1,14 +1,16 @@
 {
   "id": "nodebb-plugin-endorse-posts",
   "name": "Endorse Posts",
-  "description": "Adds a boolean isEndorsed to posts and staff-only endorse/un-endorse controls.",
+  "description": "Allows staff to endorse/unendorse posts.",
+  "url": "https://github.com/<your-repo>",
   "library": "./library.js",
   "hooks": [
-  { "hook": "filter:post.get",  "method": "decoratePost"  },
-  { "hook": "filter:posts.get", "method": "decoratePosts" },
-  { "hook": "static:app.load",  "method": "init" }
+    { "hook": "static:app.load",  "method": "init" },
+    { "hook": "filter:post.get",  "method": "decoratePost" },
+    { "hook": "filter:posts.get", "method": "decoratePosts" }
   ],
   "scripts": ["static/lib/endorse.js"],
   "css": ["static/endorse.css"]
 }
+
 

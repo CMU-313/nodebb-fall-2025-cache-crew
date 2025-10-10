@@ -1,3 +1,4 @@
+/* Pill badge shown near the post header/content */
 .endorse-badge {
   display: none;
   padding: 2px 8px;
@@ -6,6 +7,19 @@
   font-weight: 600;
   border: 1px solid currentColor;
   margin-right: 8px;
+  line-height: 1.4;
+  /* Harmony-friendly colors (dark/light auto) */
+  color: var(--bs-success);
+  border-color: var(--bs-success);
+  background: color-mix(in srgb, var(--bs-success) 10%, transparent);
 }
+
+/* Visible when endorsed */
 .endorse-badge.is-on { display: inline-block; }
-.endorse-toggle { cursor: pointer; }
+
+/* Post card highlight (subtle) */
+[data-pid].endorsed {
+  border-left: 3px solid var(--bs-success);
+  padding-left: calc(1rem - 3px); /* keep overall indent similar */
+}
+

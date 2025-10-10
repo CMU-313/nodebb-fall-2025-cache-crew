@@ -1,15 +1,10 @@
 {
   "name": "nodebb-plugin-endorse-posts",
   "version": "0.1.0",
-  "description": "Boolean-only post endorsement for staff",
+  "description": "Boolean-only staff endorsement for posts",
   "main": "library.js",
-  "keywords": ["nodebb", "plugin", "endorse"],
-  "author": "",
   "license": "GPL-3.0",
-  "nbbpm": {
-    "compatibility": "^4.0.0"
-  },
-  "engines": {
-    "node": ">=18"
-  }
+  "nbbpm": { "compatibility": "^4.0.0" },
+  "engines": { "node": ">=18" }
 }
+

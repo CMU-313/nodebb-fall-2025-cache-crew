@@ -2,10 +2,30 @@
 
 const posts = require.main.require('./src/posts');
 const db = require.main.require('./src/database');
+const user = require.main.require('./src/user');            // NEW: to check roles
 
 const Endorse = {};
 
-// Decorate each post payload with boolean isEndorsed (missing => false)
+// --- helpers ---
+async function assertStaff(uid) {
+  if (!uid) return false;
+  const [isAdmin, isGM] = await Promise.all([
+    user.isAdministrator(uid),
+    user.isGlobalModerator(uid),
+  ]);
+  return isAdmin || isGM;
+}
+
+// expose boolean on single post payloads
+Endorse.decoratePost = async (hookData) => {
+  const p = hookData?.post;
+  if (!p?.pid) return hookData;
+  const v = await db.getObjectField(`post:${p.pid}`, 'isEndorsed');
+  p.isEndorsed = v === '1';
+  return hookData;
+};
+
+// expose boolean on arrays of posts
 Endorse.decoratePosts = async (hookData) => {
   const arr = hookData?.posts;
   if (!Array.isArray(arr) || !arr.length) return hookData;
@@ -14,32 +34,6 @@ Endorse.decoratePosts = async (hookData) => {
   return hookData;
 };
 
-
-// Minimal REST API (admins or global mods only, to keep scope simple)
-Endorse.init = async ({ router, middleware }) => {
-  const requireStaff = [middleware.ensureLoggedIn, middleware.adminOrGlobalMod];
-
-  router.post('/api/v3/posts/:pid/endorse', requireStaff, async (req, res, next) => {
-    try {
-      const pid = parseInt(req.params.pid, 10);
-      const post = await posts.getPostData(pid);
-      if (!post?.pid) return res.status(404).json({ error: 'post-not-found' });
-
-      await db.setObjectField(`post:${pid}`, 'isEndorsed', '1');
-      res.json({ pid, isEndorsed: true });
-    } catch (err) { next(err); }
-  });
-
-  router.delete('/api/v3/posts/:pid/endorse', requireStaff, async (req, res, next) => {
-    try {
-      const pid = parseInt(req.params.pid, 10);
-      const post = await posts.getPostData(pid);
-      if (!post?.pid) return res.status(404).json({ error: 'post-not-found' });
-
-      await db.deleteObjectField(`post:${pid}`, 'isEndorsed');
-      res.json({ pid, isEndorsed: false });
-    } catch (err) { next(err); }
-  });
-};
-
-module.exports = Endorse;
+Endorse.init = async ({ router }) => {
+  // One handler body, mounted at two paths: /api/... and /api/v3/...
+  async function endo

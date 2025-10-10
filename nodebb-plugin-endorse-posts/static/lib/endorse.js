@@ -1,76 +1,102 @@
 /* global $, app, ajaxify */
 'use strict';
 
-// --- helpers ---------------------------------------------------------------
+/**
+ * Harmony-safe UI:
+ * - Adds Endorse/Un-endorse to the post tools dropdown (…)
+ * - Adds an inline fallback CTA near post actions if dropdown not present
+ * - Shows an "Endorsed" pill and toggles a post-level highlight class
+ */
 
+// -------- helpers ----------
 function isStaff() {
-  // Cover all bases: runtime flags + body classes (Harmony sets these)
   const byUser = !!(app?.user && (app.user.isAdmin || app.user.isGlobalModerator));
   const byBody = $('body').hasClass('admin') || $('body').hasClass('global-mod');
   return byUser || byBody;
 }
 
-function getPostsFromPayload(payload) {
+function getPosts(payload) {
   if (Array.isArray(payload?.posts)) return payload.posts;
   if (Array.isArray(ajaxify?.data?.posts)) return ajaxify.data.posts;
   return [];
 }
 
-function upsertBadge($post, on) {
-  let $badge = $post.find('.endorse-badge');
-  if (!$badge.length) {
-    $badge = $('<span class="endorse-badge">Endorsed</span>');
-    const $anchor = $post.find('.post-header, .content').first();
-    $anchor.prepend($badge);
-  }
-  $badge.toggleClass('is-on', on).toggle(on);
+function setPostEndorsedClass($post, on) {
+  $post.toggleClass('endorsed', on);
 }
 
-// --- UI injection ----------------------------------------------------------
+function upsertBadge($post, on) {
+  let $b = $post.find('.endorse-badge');
+  if (!$b.length) {
+    $b = $('<span class="endorse-badge" aria-label="Endorsed">Endorsed</span>');
+    // Prefer header area; fall back to content
+    $post.find('.post-header, .content').first().prepend($b);
+  }
+  $b.toggleClass('is-on', on).toggle(on);
+  setPostEndorsedClass($post, on);   // <-- ensure container highlight toggles too
+}
 
+// -------- DOM targets ----------
+function findDropdownMenu($post) {
+  return $post.find(
+    '[component="post/tools"] .dropdown-menu,' +
+    '[component="post/menu"] .dropdown-menu,' +
+    '.post-tools .dropdown-menu,' +
+    '.dropdown-menu[role="menu"]'
+  ).first();
+}
+
+function findInlineHost($post) {
+  return $post.find(
+    '[component="post/actions"],' +
+    '[component="post/footer"],' +
+    '.post-tools,' +
+    '.post-footer,' +
+    '.content'
+  ).first();
+}
+
+// -------- UI injection ----------
 function injectIntoDropdown($post, pid, isOn) {
-  // Harmony dropdown
-  const $menu = $post.find('[component="post/tools"] .dropdown-menu');
-  if (!$menu.length) return false; // not available yet
+  const $menu = findDropdownMenu($post);
+  if (!$menu.length) return false;
 
   let $item = $menu.find('.endorse-toggle');
   if (!$item.length) {
-    $menu.append('<div class="dropdown-divider"></div>');
+    if (!$menu.find('.endorse-divider').length) {
+      $('<div class="dropdown-divider endorse-divider"></div>').appendTo($menu);
+    }
     $item = $('<a class="dropdown-item endorse-toggle" href="#"></a>').appendTo($menu);
-    $item.on('click', function (e) {
+    $item.on('click', (e) => {
       e.preventDefault();
       toggle(pid, $post);
-      // close the dropdown
-      $menu.closest('.dropdown').removeClass('show')
-        .find('.dropdown-menu').removeClass('show');
+      $menu.closest('.dropdown').removeClass('show').find('.dropdown-menu').removeClass('show');
     });
   }
   $item.text(isOn ? 'Un-endorse' : 'Endorse');
   return true;
 }
 
-function injectInlineCta($post, pid, isOn) {
-  // Fallback host: post actions row → tools → footer → content
-  const $host = $post.find('[component="post/actions"], .post-tools, .post-footer, .content').first();
+function injectInlineCTA($post, pid, isOn) {
+  const $host = findInlineHost($post);
   if (!$host.length) return false;
 
   let $btn = $post.find('.endorse-inline');
   if (!$btn.length) {
     $btn = $('<a class="endorse-inline" href="#" style="margin-left:8px;"></a>').appendTo($host);
-    $btn.on('click', function (e) {
-      e.preventDefault();
-      toggle(pid, $post);
-    });
+    $btn.on('click', (e) => { e.preventDefault(); toggle(pid, $post); });
   }
   $btn.text(isOn ? 'Un-endorse' : 'Endorse');
   return true;
 }
 
+// -------- toggle ----------
 async function toggle(pid, $post) {
   const on = $post.find('.endorse-badge').is(':visible');
   const method = on ? 'DELETE' : 'POST';
+  const base = app.config.relative_path || '';
   try {
-    await $.ajax({ url: `${app.config.relative_path}/api/v3/posts/${pid}/endorse`, method });
+    await $.ajax({ url: `${base}/api/v3/posts/${pid}/endorse`, method });
     upsertBadge($post, !on);
     $post.find('.endorse-toggle,.endorse-inline').text(!on ? 'Un-endorse' : 'Endorse');
     app.alertSuccess(!on ? 'Post endorsed.' : 'Endorsement removed.');
@@ -79,30 +105,31 @@ async function toggle(pid, $post) {
   }
 }
 
+// -------- main wiring ----------
 function wire(payload) {
   if (!isStaff()) return;
-  const posts = getPostsFromPayload(payload);
-  posts.forEach((p) => {
+  getPosts(payload).forEach((p) => {
     const $post = $(`[data-pid="${p.pid}"]`);
     if (!$post.length) return;
-
-    upsertBadge($post, !!p.isEndorsed);
-
-    // Try dropdown first; if not present yet, add inline CTA as fallback
-    const dropdownOK = injectIntoDropdown($post, p.pid, !!p.isEndorsed);
-    if (!dropdownOK) injectInlineCta($post, p.pid, !!p.isEndorsed);
+    const endorsed = !!p.isEndorsed;
+    upsertBadge($post, endorsed);
+    const ok = injectIntoDropdown($post, p.pid, endorsed);
+    if (!ok) injectInlineCTA($post, p.pid, endorsed);
   });
 }
 
-// initial load + incremental loads
+// initial & incremental loads
 $(window).on('action:topic.loaded', (_e, data) => wire(data));
 $(window).on('action:posts.loaded', (_e, data) => wire(data));
+$(window).on('action:ajaxify.end', (_e, data) => wire(data));
 
-// If the dropdown renders lazily when opened, enhance it on open:
-$(document).on('shown.bs.dropdown', '[component="post/tools"]', function () {
+// enhance when dropdown is opened
+$(document).on('shown.bs.dropdown', '[component="post/tools"],[component="post/menu"]', function () {
   if (!isStaff()) return;
   const $post = $(this).closest('[data-pid]');
   const pid = parseInt($post.attr('data-pid'), 10);
-  const isOn = $post.find('.endorse-badge').is(':visible');
-  injectIntoDropdown($post, pid, isOn);
+  const on = $post.find('.endorse-badge').is(':visible');
+  injectIntoDropdown($post, pid, on);
 });
+
+
