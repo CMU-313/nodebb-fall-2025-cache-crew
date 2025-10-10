@@ -4,8 +4,10 @@ const nconf = require.main.require('nconf');
 const meta = require.main.require('./src/meta');
 const _ = require.main.require('lodash');
 const user = require.main.require('./src/user');
-
 const controllers = require('./lib/controllers');
+
+const Topics = require.main.require('./src/topics');
+// const categories = require.main.require('./src/categories');
 
 const library = module.exports;
 
@@ -23,6 +25,7 @@ const defaults = {
 };
 
 library.init = async function (params) {
+	console.log('[Harmony] Theme loaded and initialized');
 	const { router, middleware } = params;
 	const routeHelpers = require.main.require('./src/routes/helpers');
 
@@ -158,6 +161,7 @@ library.loadThemeConfig = async function (uid) {
 };
 
 library.getThemeConfig = async function (config) {
+	console.log('[Harmony] getThemeConfig called - theme is working!');
 	config.theme = await library.loadThemeConfig(config.uid);
 	config.openDraftsOnPageLoad = false;
 	return config;
@@ -184,5 +188,67 @@ library.saveUserSettings = async function (hookData) {
 
 library.filterMiddlewareRenderHeader = async function (hookData) {
 	hookData.templateData.bootswatchSkinOptions = await meta.css.getSkinSwitcherOptions(hookData.req.uid);
+	return hookData;
+};
+
+library.addCategoryStats = async (hookData) => {
+	// Check if this is the categories page
+	if (!hookData.templateData || !hookData.templateData.categories) {
+		return hookData;
+	}
+	
+	const categoryList = hookData.templateData.categories;
+	if (!Array.isArray(categoryList) || categoryList.length === 0) {
+		return hookData;
+	}
+	
+	console.log('[Harmony] Adding category stats for', categoryList.length, 'categories');
+	
+	try {
+		// Process all categories including children
+		async function processCategoryTree(cats) {
+			await Promise.all(cats.map(async (category) => {
+				if (!category || !category.cid) return;
+				
+				console.log(`[Harmony] Processing category: ${category.name} (cid: ${category.cid})`);
+				
+				// Get all topic IDs
+				const db = require.main.require('./src/database');
+				const topicIds = await db.getSortedSetRange(`cid:${category.cid}:tids`, 0, -1);
+				
+				if (!topicIds || !topicIds.length) {
+					category.totalViewCount = 0;
+					category.totalUpvoteCount = 0;
+					console.log(`[Harmony] Category ${category.name}: No topics, set to 0`);
+				} else {
+					// Get ALL fields from first topic to see what's available
+					const firstTopicAllFields = await Topics.getTopicFields(topicIds[0], []);
+					console.log(`[Harmony] ALL fields from first topic:`, Object.keys(firstTopicAllFields));
+					
+					// Try different possible field names
+					const topics = await Topics.getTopicsFields(topicIds, ['viewcount', 'views', 'upvotes', 'votes']);
+					console.log(`[Harmony] Got ${topics.length} topics. First topic full data:`, topics[0]);
+					
+					// Try viewcount instead of views
+					category.totalViewCount = topics.reduce((sum, t) => sum + (parseInt(t.viewcount || t.views) || 0), 0);
+					category.totalUpvoteCount = topics.reduce((sum, t) => sum + (parseInt(t.upvotes || t.votes) || 0), 0);
+					
+					console.log(`[Harmony] Category ${category.name}: FINAL views=${category.totalViewCount}, upvotes=${category.totalUpvoteCount}`);
+				}
+				
+				// Process children recursively
+				if (category.children && category.children.length > 0) {
+					await processCategoryTree(category.children);
+				}
+			}));
+		}
+		
+		await processCategoryTree(categoryList);
+		console.log('[Harmony] Finished processing all categories');
+	} catch (err) {
+		console.error('[Harmony theme] Failed to add category stats:', err);
+		console.error('[Harmony theme] Error stack:', err.stack);
+	}
+	
 	return hookData;
 };
