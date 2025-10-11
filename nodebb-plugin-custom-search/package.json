@@ -1,0 +1,19 @@
+{
+  "name": "nodebb-plugin-custom-search",
+  "version": "1.0.0",
+  "description": "Custom search plugin for NodeBB",
+  "main": "library.js",
+  "keywords": [
+    "nodebb",
+    "plugin",
+    "search"
+  ],
+  "author": {
+    "name": "Martin Jimenez"
+  },
+  "nbbpm": {
+    "compatibility": "^3.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

@@ -1,0 +1,25 @@
+{
+  "id": "nodebb-plugin-custom-search",
+  "name": "Custom Search",
+  "description": "Custom search functionality for NodeBB",
+  "library": "./library.js",
+  "staticDirs": {
+    "static": "./static"
+  },
+  "scripts": [
+    "static/lib/main.js"
+  ],
+  "css": [
+    "static/style.css"
+  ],
+  "hooks": [
+    {
+      "hook": "static:app.load",
+      "method": "init"
+    },
+    {
+      "hook": "static:app.load",
+      "method": "addRoutes"
+    }
+  ]
+}

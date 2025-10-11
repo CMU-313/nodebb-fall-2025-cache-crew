@@ -1,0 +1,23 @@
+/* Search highlighting styles */
+.search-highlight {
+  background-color: #fff59d; /* softer yellow */
+  padding: 0; /* no padding to avoid visual gaps */
+  border-radius: 0.12rem;
+  font-weight: inherit;
+  display: inline; /* ensure it doesn't force block layout */
+  line-height: inherit;
+  vertical-align: baseline;
+  white-space: normal;
+  word-break: normal;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+.post-content {
+  display: block !important;
+}
+
+/* Optional: smooth transitions */
+.search-highlight {
+  transition: background-color 0.2s ease;
+}
