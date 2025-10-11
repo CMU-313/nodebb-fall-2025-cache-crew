@@ -1,0 +1,16 @@
+{
+  "id": "nodebb-plugin-endorse-posts",
+  "name": "Endorse Posts",
+  "description": "Allows staff to endorse/unendorse posts.",
+  "url": "https://github.com/<your-repo>",
+  "library": "./library.js",
+  "hooks": [
+    { "hook": "static:app.load",  "method": "init" },
+    { "hook": "filter:post.get",  "method": "decoratePost" },
+    { "hook": "filter:posts.get", "method": "decoratePosts" }
+  ],
+  "scripts": ["static/lib/endorse.js"],
+  "css": ["static/endorse.css"]
+}
+
+
