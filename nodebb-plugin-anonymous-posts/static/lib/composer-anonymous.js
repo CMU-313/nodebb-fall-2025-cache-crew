@@ -6,6 +6,7 @@ require(['hooks', 'composer'], function (hooks, composer) {
 	const COMPONENT = 'composer/anonymous-toggle';
 
 	// Ensure the "Post Anonymously" toggle is present in the composer
+	// Utilized ChatGPT-5 to help with the code
 	function ensureToggle({ postContainer, postData }) {
 		if (!postData || postData.action !== 'topics.post') {
 			return;
@@ -21,6 +22,7 @@ require(['hooks', 'composer'], function (hooks, composer) {
 			return;
 		}
 
+		// Create the toggle HTML element
 		const uuid = postContainer.attr('data-uuid');
 		const inputId = `composer-anonymous-${uuid}`;
 		const toggleEl = $(`
@@ -29,6 +31,9 @@ require(['hooks', 'composer'], function (hooks, composer) {
 				<label class="form-check-label" for="${inputId}">Post Anonymously</label>
 			</div>
 		`);
+
+		// Set the checked state and add event listener
+		// Utilized ChatGPT-5 to help with the code
 		const inputEl = toggleEl.find('input');
 		inputEl.prop('checked', !!postData.is_anonymous);
 		inputEl.on('change', function () {

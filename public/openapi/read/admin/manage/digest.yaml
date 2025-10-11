@@ -44,7 +44,10 @@ get:
                         lastDelivery:
                           type: string
                         setting:
-                          type: boolean
+                          description: User's selected digest preference (or a flag if disabled)
+                          oneOf:
+                            - type: string
+                            - type: boolean
                         isLocal:
                           type: boolean
                           description: Whether the user belongs to the local installation or not.

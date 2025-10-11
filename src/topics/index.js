@@ -128,13 +128,25 @@ Topics.getTopicsByTids = async function (tids, options) {
 		user.getSettings(uid),
 	]);
 
+	const mainPids = result.topics
+		.map(topic => topic && topic.mainPid)
+		.filter(Boolean);
+	const mainPosts = mainPids.length ? await posts.getPostsFields(mainPids, ['pid', 'is_anonymous']) : [];
+	const pidToAnon = _.zipObject(mainPosts.map(post => post.pid), mainPosts.map(post => posts.isAnonymous(post)));
+
 	const sortNewToOld = callerSettings.topicPostSort === 'newest_to_oldest';
+
+	// Ensure that topic view of post is anonymous if the post is marked anonymous
+	// Utilized ChatGPT-5 to help with the code
 	result.topics.forEach((topic, i) => {
 		if (topic) {
 			topic.thumbs = result.thumbs[i];
 			topic.category = result.categoriesMap[topic.cid];
-			topic.user = topic.uid ? result.usersMap[topic.uid] : { ...result.usersMap[topic.uid] };
-			if (result.tidToGuestHandle[topic.tid]) {
+			const mappedUser = result.usersMap[topic.uid];
+			const baseUser = mappedUser ? { ...mappedUser } : { uid: topic.uid };
+			topic.is_anonymous = Boolean(pidToAnon[topic.mainPid]);
+			topic.user = topic.is_anonymous ? posts.anonymizeUser(baseUser, topic.uid) : baseUser;
+			if (!topic.is_anonymous && result.tidToGuestHandle[topic.tid]) {
 				topic.user.username = validator.escape(result.tidToGuestHandle[topic.tid]);
 				topic.user.displayname = topic.user.username;
 			}

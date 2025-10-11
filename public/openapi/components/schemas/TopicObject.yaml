@@ -163,6 +163,9 @@ TopicObject:
           type: boolean
         unread:
           type: boolean
+        is_anonymous:
+          type: boolean
+          description: Indicates whether the topic's original post was submitted anonymously
         bookmark:
           nullable: true
           type: number

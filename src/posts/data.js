@@ -4,10 +4,11 @@ const db = require('../database');
 const plugins = require('../plugins');
 const utils = require('../utils');
 
+// intFields, with is_anonymous
 const intFields = [
 	'uid', 'pid', 'tid', 'deleted', 'timestamp',
 	'upvotes', 'downvotes', 'deleterUid', 'edited',
-	'replies', 'bookmarks', 'announces',
+	'replies', 'bookmarks', 'announces', 'is_anonymous',
 ];
 
 module.exports = function (Posts) {
@@ -66,6 +67,10 @@ function modifyPost(post, fields) {
 		}
 		if (post.hasOwnProperty('edited')) {
 			post.editedISO = post.edited !== 0 ? utils.toISOString(post.edited) : '';
+		}
+		// Check if post is anonymous
+		if (post.hasOwnProperty('is_anonymous')) {
+			post.is_anonymous = Boolean(post.is_anonymous);
 		}
 		if (!fields.length || fields.includes('attachments')) {
 			post.attachments = (post.attachments || '').split(',').filter(Boolean);

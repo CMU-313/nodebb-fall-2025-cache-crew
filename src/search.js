@@ -246,7 +246,8 @@ async function filterAndSort(pids, data) {
 }
 
 async function getMatchedPosts(pids, data) {
-	const postFields = ['pid', 'uid', 'tid', 'timestamp', 'deleted', 'upvotes', 'downvotes'];
+	// Check if the posts are anonymous
+	const postFields = ['pid', 'uid', 'tid', 'timestamp', 'deleted', 'upvotes', 'downvotes', 'is_anonymous'];
 
 	let postsData = await posts.getPostsFields(pids, postFields);
 	postsData = postsData.filter(post => post && !post.deleted);
@@ -268,8 +269,15 @@ async function getMatchedPosts(pids, data) {
 			}
 		}
 
-		if (uidToUser[post.uid]) {
-			post.user = uidToUser[post.uid];
+
+
+		const mappedUser = uidToUser[post.uid];
+		if (mappedUser) {
+			const baseUser = { ...mappedUser };
+			// Anonymize the user if the post is anonymous
+			post.user = posts.isAnonymous(post) ? posts.anonymizeUser(baseUser, post.uid) : baseUser;
+		} else if (posts.isAnonymous(post)) {
+			post.user = posts.anonymizeUser({ uid: post.uid }, post.uid);
 		}
 	});
 

@@ -25,7 +25,7 @@ async function getPostSummaryByPids(Posts, { pids, uid, options }) {
 	options.escape = options.hasOwnProperty('escape') ? options.escape : false;
 	options.extraFields = options.hasOwnProperty('extraFields') ? options.extraFields : [];
 
-	const fields = ['pid', 'tid', 'toPid', 'url', 'content', 'sourceContent', 'uid', 'timestamp', 'deleted', 'upvotes', 'downvotes', 'replies', 'handle'].concat(options.extraFields);
+	const fields = ['pid', 'tid', 'toPid', 'url', 'content', 'sourceContent', 'uid', 'timestamp', 'deleted', 'upvotes', 'downvotes', 'replies', 'handle', 'is_anonymous'].concat(options.extraFields);
 
 	let posts = await Posts.getPostsFields(pids, fields);
 	posts = posts.filter(Boolean);
@@ -53,14 +53,19 @@ async function getPostSummaryByPids(Posts, { pids, uid, options }) {
 		// toPid is nullable so it is casted separately
 		post.toPid = utils.isNumber(post.toPid) ? parseInt(post.toPid, 10) : post.toPid;
 
-		post.user = uidToUser[post.uid];
-		Posts.overrideGuestHandle(post, post.handle);
+		const mappedUser = uidToUser[post.uid];
+		const baseUser = mappedUser ? { ...mappedUser } : { uid: post.uid };
+		post.user = Posts.isAnonymous(post) ? Posts.anonymizeUser(baseUser, post.uid) : baseUser;
+		if (!Posts.isAnonymous(post)) {
+			Posts.overrideGuestHandle(post, post.handle);
+		}
 		post.handle = undefined;
 		post.topic = tidToTopic[post.tid];
 		post.category = post.topic && cidToCategory[post.topic.cid];
 		post.isMainPost = post.topic && post.pid === post.topic.mainPid;
 		post.deleted = post.deleted === 1;
 		post.timestampISO = utils.toISOString(post.timestamp);
+		post.is_anonymous = Boolean(post.is_anonymous);
 
 		// url only applies to remote posts; assume permalink otherwise
 		if (utils.isNumber(post.pid)) {

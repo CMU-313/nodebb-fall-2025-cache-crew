@@ -82,6 +82,9 @@ get:
                                               type: number
                                             content:
                                               type: string
+                                            is_anonymous:
+                                              type: boolean
+                                              description: Indicates whether this post was submitted anonymously
                                             timestampISO:
                                               type: string
                                               description: An ISO 8601 formatted date string (complementing `timestamp`)
@@ -142,6 +145,9 @@ get:
                                     type: number
                                   content:
                                     type: string
+                                  is_anonymous:
+                                    type: boolean
+                                    description: Indicates whether this post was submitted anonymously
                                   sourceContent:
                                     type: string
                                     nullable: true
