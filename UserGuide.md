@@ -170,3 +170,35 @@ Two REST API routes are exposed for automation or integration:
 Responses return:
 ```json
 { "isEndorsed": true }   // or false
+
+## feature: post anonymously
+This plugin allows users to make posts anonymously on NodeBB. In the topic composer (when a user selects New Topic in any one of the forums), they will see a Post Anonymously toggle in the bottom-left. If selected, all links to the user's profile will be disconnected, both in the topic screen itself and in the topic list view. This includes links from the profile picture or the username itself. Additionally, the user's username will be changed to "Anonymous," and their profile picture will be replaced with a generic one. 
+
+## What You'll See
+
+When viewing someone's anonymous post, you will see:
+- A gray profile picture with an "A"
+- "Anonymous" as the username
+- All links to profile disconnected
+
+## Prerequisites
+- ./nodebb start
+- Ensure that nodebb-plugin-anonymous-posts is activated in the Admin Control Panel. Rebuild and restart (./nodebb rebuild, then ./nodebb restart).
+
+## How to Use
+
+1. Go to any forum, and click the New Topic button.
+2. Make your post as normal.
+3. Switch the Post Anonymously toggle to on.
+4. Create your post. Now confirm that all links to your profile have been disconnected on that screen. Also, confirm that your username is Anonymous now.
+5. You may also look at your post from the topics list view. Confirm that the links have been disabled and the username is still Anonymous.
+
+## Automated Tests
+
+- `test/topics/anonymous.js` - can be activated using npm test, and can also test specifically that file by doing `npx mocha "test/topics/anonymous.js" --exit`
+
+## Test Explanation
+- test/topics/anonymous.js:28 - posts a new topic with is_anonymous = true; it then confirms that the flag is true, and edits the same post with is_anonymous = false to check that the field flips correctly. This verifies persistence of the flag. 
+- test/topics/anonymous.js:66 - creates a reply with is_anonymous = true, verifies the response reports the flag, then inspects Redis to ensure the value is reflected in the database.
+
+This is sufficient to ensure that the backend for the toggle works appropriately.
