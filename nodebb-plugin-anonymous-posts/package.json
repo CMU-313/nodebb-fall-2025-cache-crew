@@ -1,0 +1,7 @@
+{
+  "name": "nodebb-plugin-anonymous-posts",
+  "version": "0.0.1",
+  "description": "Allows users to post anonymously",
+  "main": "library.js",
+  "author": "Martin Jimenez, Adam Sultan"
+}
