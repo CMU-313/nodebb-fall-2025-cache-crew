@@ -8,6 +8,7 @@ const user = require('../../src/user');
 const groups = require('../../src/groups');
 const categories = require('../../src/categories');
 
+// Used some ChatGPT-5 to help with the code for this test
 describe('Topics anonymous flag', () => {
 	const credentials = { username: 'anon-test-user', password: 'anonymous123' };
 	let jar;
