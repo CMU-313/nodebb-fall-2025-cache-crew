@@ -1,0 +1,31 @@
+=== IROH.JS INSTALLATION VERIFICATION ===
+
+Date: Thu Oct 23 19:23:45 EDT 2025
+
+=== Package Installation ===
+nodebb@4.4.6 /Users/esharhans/Desktop/cmu-313-f25-nodebb-fall-2025-NodeBB
+└── iroh@0.3.0
+
+
+=== Tool Execution Output ===
+[iroh-demo] Creating Stage with listeners...
+[iroh-demo] Attached listener via stage.addListener()
+-> Endorsed
+-> Not Endorsed
+[iroh-demo] OK via new Function(prog.script) with global.Iroh
+
+=== Iroh Module Info ===
+Iroh exports: [
+  'scope',      'stage',   'state',
+  'instance',   'stages',  'THIS',
+  'UNARY',      'UPDATE',  'BINARY',
+  'LOGICAL',    'TERNARY', 'ASSIGN',
+  'ALLOC',      'MEMBER',  'LITERAL',
+  'IDENTIFIER', 'TRY',     'CATCH',
+  'FINALLY',    'OP_NEW',  'VAR',
+  'IF',         'ELSE',    'SWITCH',
+  'CASE',       'BREAK',   'CONTINUE',
+  'LOOP',       'CALL',    'FUNCTION',
+  'BLOCK',      'PROGRAM', 'METHOD',
+  'SUPER',      'Stage'
+]
