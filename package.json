@@ -160,6 +160,7 @@
         "@commitlint/cli": "19.8.1",
         "@commitlint/config-angular": "19.8.1",
         "@eslint/js": "9.26.0",
+        "@stryker-mutator/mocha-runner": "^9.2.0",
         "@stylistic/eslint-plugin-js": "4.4.0",
         "chai": "^6.2.0",
         "coveralls": "3.1.1",
