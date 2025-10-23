@@ -12,7 +12,6 @@ concurrency:
 
 jobs:
   build-and-deploy:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +21,25 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20.17.0'
-      
+
+      # Run Retire.js Security Scan
+      - name: Install Retire.js
+        run: npm install -g retire
+
+      - name: Run Retire.js scan
+        run: |
+          mkdir -p reports
+          # Scan node modules (server-side)
+          retire --path . --outputformat json > reports/retire-node.json || true
+          # Scan frontend JS (public folder)
+          retire --path public --outputformat json > reports/retire-public.json || true
+
+      - name: Upload Retire.js scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: retirejs-scan-results
+          path: reports/
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.1
         with:
