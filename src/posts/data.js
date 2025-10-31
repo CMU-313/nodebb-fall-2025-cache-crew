@@ -70,5 +70,11 @@ function modifyPost(post, fields) {
 		if (!fields.length || fields.includes('attachments')) {
 			post.attachments = (post.attachments || '').split(',').filter(Boolean);
 		}
+<<<<<<< HEAD
+=======
+		// Mark post as "English" if decided by translator service or if it has no info
+		post.isEnglish = post.isEnglish == 'true' || post.isEnglish === undefined;
+		post.translatedContent = post.translatedContent ?? post.content;
+>>>>>>> a2f3ab4643 (perf: updated to sync with bugfix + pass tests)
 	}
 }
