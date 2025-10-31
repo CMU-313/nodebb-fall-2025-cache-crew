@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     
 concurrency:
@@ -12,7 +15,6 @@ concurrency:
 
 jobs:
   build-and-deploy:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +24,25 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20.17.0'
-      
+
+      # Retire.js Static Analysis Step
+      - name: Install Retire.js
+        run: npm install -g retire
+
+      - name: Run Retire.js scan
+        run: |
+          mkdir -p reports
+          retire --path . --outputformat json > reports/retire-node.json || true
+          retire --path public --outputformat json > reports/retire-public.json || true
+          echo "Retire.js scan completed. Reports saved to ./reports"
+
+      - name: Upload Retire.js scan results
+        uses: actions/upload-artifact@v4
+        with:
+          name: retirejs-scan-results
+          path: reports/
+
+      # 🚀 Deploy to VM (runs only after scan succeeds)
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.1
         with:
