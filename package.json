@@ -12,6 +12,7 @@
     "scripts": {
         "start": "node loader.js",
         "lint": "eslint --cache ./nodebb .",
+        "flow": "flow",
         "test": "nyc --reporter=html --reporter=text-summary mocha",
         "coverage": "nyc report --reporter=text-lcov > ./coverage/lcov.info",
         "coveralls": "nyc report --reporter=text-lcov | coveralls && rm -r coverage"
@@ -166,6 +167,7 @@
         "eslint-config-nodebb": "1.1.5",
         "eslint-plugin-import": "2.31.0",
         "express": "^5.1.0",
+        "flow-bin": "^0.289.0",
         "grunt": "1.6.1",
         "grunt-contrib-watch": "1.1.0",
         "husky": "8.0.3",
