@@ -34,6 +34,7 @@ module.exports = function (app, middleware, controllers) {
 	];
 
 	router.post('/post/upload', postMiddlewares, helpers.tryRoute(uploadsController.uploadPost));
+	router.post('/translate', [...middlewares, middleware.ensureLoggedIn], helpers.tryRoute(require('./api/translate')));
 	router.post('/user/:userslug/uploadpicture', [
 		...middlewares,
 		...postMiddlewares,

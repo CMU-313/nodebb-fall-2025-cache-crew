@@ -289,6 +289,20 @@ define('forum/topic/postTools', [
 		postContainer.on('click', '[component="post/chat"]', function () {
 			openChat($(this));
 		});
+
+		postContainer.on('click', '[component="post/translate"]', function () {
+			const btn = $(this);
+			const pid = getData(btn, 'data-pid');
+			require(['api'], function (api) {
+				api.get(`/posts/${encodeURIComponent(pid)}`).then(function (postData) {
+					if (postData && postData.content) {
+						require(['translate'], function (translate) {
+							translate.translatePost(postData);
+						});
+					}
+				}).catch(alerts.error);
+			});
+		});
 	}
 
 	async function onReplyClicked(button, tid) {
