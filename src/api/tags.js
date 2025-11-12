@@ -10,5 +10,4 @@ tagsAPI.follow = async function (caller, data) {
 
 tagsAPI.unfollow = async function (caller, data) {
 	await topics.unfollowTag(data.tag, caller.uid);
-	console.log('This is a test for running npm');
 };

@@ -19,6 +19,7 @@ const translator = require('../translator');
 
 module.exports = function (Topics) {
 	Topics.create = async function (data) {
+		// This is an internal method, consider using Topics.post instead
 		const timestamp = data.timestamp || Date.now();
 
 		const tid = data.tid || await db.incrObjectField('global', 'nextTid');
@@ -159,6 +160,7 @@ module.exports = function (Topics) {
 			setImmediate(async () => {
 				try {
 					if (utils.isNumber(uid)) {
+						// New topic notifications only sent for local-to-local follows only
 						await user.notifications.sendTopicNotificationToFollowers(uid, topicData, postData);
 					}
 

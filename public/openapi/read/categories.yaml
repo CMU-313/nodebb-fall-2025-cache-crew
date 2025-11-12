@@ -85,6 +85,10 @@ get:
                                             is_anonymous:
                                               type: boolean
                                               description: Indicates whether this post was submitted anonymously
+                                            isEnglish:
+                                              type: boolean
+                                            translatedContent:
+                                              type: string
                                             timestampISO:
                                               type: string
                                               description: An ISO 8601 formatted date string (complementing `timestamp`)
@@ -148,6 +152,10 @@ get:
                                   is_anonymous:
                                     type: boolean
                                     description: Indicates whether this post was submitted anonymously
+                                  isEnglish:
+                                    type: boolean
+                                  translatedContent:
+                                    type: string 
                                   sourceContent:
                                     type: string
                                     nullable: true

@@ -470,13 +470,13 @@ async function canSeeVotes(uid, cids, type) {
 	const cidToAllowed = _.zipObject(uniqCids, canRead);
 	const checks = cids.map(
 		(cid, index) => isAdmin || isMod[index] ||
+		(
+			cidToAllowed[cid] &&
 			(
-				cidToAllowed[cid] &&
-				(
-					meta.config[type] === 'all' ||
-					(meta.config[type] === 'loggedin' && parseInt(uid, 10) > 0)
-				)
+				meta.config[type] === 'all' ||
+				(meta.config[type] === 'loggedin' && parseInt(uid, 10) > 0)
 			)
+		)
 	);
 	return isArray ? checks : checks[0];
 }
