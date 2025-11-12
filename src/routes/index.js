@@ -131,9 +131,15 @@ module.exports = async function (app, middleware) {
 		}
 	});
 
-	router.all('(/+api|/+api/*?)', middleware.prepareAPI);
-	router.all(`(/+api/admin|/+api/admin/*?${mounts.admin !== 'admin' ? `|/+api/${mounts.admin}|/+api/${mounts.admin}/*?` : ''})`, middleware.authenticateRequest, middleware.ensureLoggedIn, middleware.admin.checkPrivileges);
-	router.all(`(/+admin|/+admin/*?${mounts.admin !== 'admin' ? `|/+${mounts.admin}|/+${mounts.admin}/*?` : ''})`, middleware.ensureLoggedIn, middleware.applyCSRF, middleware.admin.checkPrivileges);
+	// router.all('(/+api|/+api/*?)', middleware.prepareAPI);
+	// router.all(`(/+api/admin|/+api/admin/*?${mounts.admin !== 'admin' ? `
+	//|/+api/${mounts.admin}|/+api/${mounts.admin}/*?` : ''})`, 
+	// middleware.authenticateRequest, middleware.ensureLoggedIn, middleware.admin.checkPrivileges);
+	// router.all(`(/+admin|/+admin/*?${mounts.admin !== 'admin' ? `|/+${mounts.admin}|/+${mounts.admin}/*?` : ''})`, 
+	// middleware.ensureLoggedIn, middleware.applyCSRF, middleware.admin.checkPrivileges);
+	router.all(/\/+api(\/.*)?/, middleware.prepareAPI);
+	router.all(new RegExp(`/(?:api/admin|api/${mounts.admin})(?:/.*)?`), middleware.authenticateRequest, middleware.ensureLoggedIn, middleware.admin.checkPrivileges);
+	router.all(new RegExp(`/(?:admin|${mounts.admin})(?:/.*)?`), middleware.ensureLoggedIn, middleware.applyCSRF, middleware.admin.checkPrivileges);
 
 	app.use(middleware.stripLeadingSlashes);
 
