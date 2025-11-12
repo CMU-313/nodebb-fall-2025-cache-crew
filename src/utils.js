@@ -15,8 +15,6 @@ process.elapsedTimeSince = function (start) {
 const utils = { ...require('../public/src/utils.common') };
 
 // Add true/false boolean strings
-const TRUE_BOOLEAN_STRINGS = new Set(['1', 'true', 'yes', 'on']);
-const FALSE_BOOLEAN_STRINGS = new Set(['0', 'false', 'no', 'off']);
 
 utils.getLanguage = function () {
 	const meta = require('./meta');
@@ -85,35 +83,6 @@ utils.getFontawesomeVersion = function () {
 	const fontawesomePath = utils.getFontawesomePath();
 	const packageJson = require(path.join(fontawesomePath, 'package.json'));
 	return packageJson.version;
-};
-
-// Add parseBoolean function that supports true/false boolean strings
-utils.parseBoolean = function (value, options = {}) {
-	const { defaultValue, error } = options;
-	if (value === undefined || value === null) {
-		return defaultValue;
-	}
-	if (typeof value === 'boolean') {
-		return value;
-	}
-	if (typeof value === 'number') {
-		if (value === 1) {
-			return true;
-		}
-		if (value === 0) {
-			return false;
-		}
-	}
-	if (typeof value === 'string') {
-		const normalized = value.trim().toLowerCase();
-		if (TRUE_BOOLEAN_STRINGS.has(normalized)) {
-			return true;
-		}
-		if (FALSE_BOOLEAN_STRINGS.has(normalized) || normalized === '') {
-			return false;
-		}
-	}
-	throw new Error(error || '[[error:invalid-data]]');
 };
 
 module.exports = utils;

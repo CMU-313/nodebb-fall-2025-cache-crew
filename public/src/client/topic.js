@@ -71,11 +71,27 @@ define('forum/topic', [
 		handleThumbs();
 
 		$(window).on('scroll', utils.debounce(updateTopicTitle, 250));
+		configurePostToggle();
 
 		handleTopicSearch();
 
 		hooks.fire('action:topic.loaded', ajaxify.data);
 	};
+
+	function configurePostToggle() {
+		$('.topic').on('click', '.view-translated-btn', function () {
+			// Toggle the visibility of the next .translated-content div
+			$(this).closest('.sensitive-content-message').next('.translated-content').toggle();
+			// Optionally, change the button text based on visibility
+			var isVisible = $(this).closest('.sensitive-content-message').next('.translated-content').is(':visible');
+			if (isVisible) {
+				$(this).text('Hide the translated message.');
+			} else {
+				$(this).text('Click here to view the translated message.');
+			}
+		});
+	}
+
 
 	function handleTopicSearch() {
 		require(['mousetrap'], (mousetrap) => {
@@ -150,14 +166,12 @@ define('forum/topic', [
 		const bookmark = ajaxify.data.bookmark || storage.getItem('topic:' + tid + ':bookmark');
 		const postIndex = ajaxify.data.postIndex;
 		updateUserBookmark(postIndex);
-
-		const hasBookmark = !!bookmark;
-		const onFirstPageOrNoPagination = !config.usePagination || ajaxify.data.pagination.currentPage === 1;
-		const exceedsBookmarkThreshold = ajaxify.data.postcount > ajaxify.data.bookmarkThreshold;
-
 		if (navigator.shouldScrollToPost(postIndex)) {
 			return navigator.scrollToPostIndex(postIndex - 1, true, 0);
-		} else if (hasBookmark && onFirstPageOrNoPagination && exceedsBookmarkThreshold) {
+		} else if (bookmark && (
+			!config.usePagination ||
+			(config.usePagination && ajaxify.data.pagination.currentPage === 1)
+		) && ajaxify.data.postcount > ajaxify.data.bookmarkThreshold) {
 			alerts.alert({
 				alert_id: 'bookmark',
 				message: '[[topic:bookmark-instructions]]',
