@@ -73,6 +73,17 @@ describe('Translator shim', () => {
 	});
 });
 
+describe('Translation Metrics', () => {
+	it('should track total and successful requests', async () => {
+		const startTotal = shim.getMetrics().totalRequests;
+		await shim.translate('[[global:home]]');
+		const metrics = shim.getMetrics();
+		assert.ok(metrics.totalRequests > startTotal);
+		assert.ok(metrics.successfulRequests > 0);
+	});
+});
+
+
 describe('new Translator(language)', () => {
 	it('should throw if not passed a language', (done) => {
 		assert.throws(() => {
