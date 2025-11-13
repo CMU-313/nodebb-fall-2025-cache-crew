@@ -14,9 +14,7 @@
         "lint": "eslint --cache ./nodebb .",
         "test": "nyc --reporter=html --reporter=text-summary mocha",
         "coverage": "nyc report --reporter=text-lcov > ./coverage/lcov.info",
-        "coveralls": "nyc report --reporter=text-lcov | coveralls && rm -r coverage",
-        "tool:iroh": "mkdir -p artifacts && node tools/iroh-demo.js | tee artifacts/iroh-output.txt"
-
+        "coveralls": "nyc report --reporter=text-lcov | coveralls && rm -r coverage"
     },
     "nyc": {
         "exclude": [
@@ -31,8 +29,8 @@
     },
     "dependencies": {
         "@adactive/bootstrap-tagsinput": "0.8.2",
-        "@fontsource/inter": "5.2.8",
-        "@fontsource/poppins": "5.2.7",
+        "@fontsource/inter": "5.2.5",
+        "@fontsource/poppins": "5.2.6",
         "@fortawesome/fontawesome-free": "6.7.2",
         "@isaacs/ttlcache": "1.4.1",
         "@nodebb/spider-detector": "2.0.3",
@@ -110,7 +108,7 @@
         "nodebb-plugin-spam-be-gone": "2.3.2",
         "nodebb-plugin-web-push": "0.7.4",
         "nodebb-rewards-essentials": "1.0.2",
-        "nodebb-theme-harmony": "file:vendor/nodebb-theme-harmony-2.1.23",
+        "nodebb-theme-harmony": "file:vendor/nodebb-theme-harmony-2.1.15",
         "nodebb-theme-lavender": "7.1.19",
         "nodebb-theme-peace": "2.2.43",
         "nodebb-theme-persona": "14.1.12",
@@ -169,6 +167,7 @@
         "grunt": "1.6.1",
         "grunt-contrib-watch": "1.1.0",
         "husky": "8.0.3",
+        "iroh": "^0.3.0",
         "jsdom": "26.1.0",
         "lint-staged": "16.0.0",
         "mocha": "11.2.2",
